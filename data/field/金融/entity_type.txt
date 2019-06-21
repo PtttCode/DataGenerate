@@ -1,0 +1,6 @@
+item
+stock
+set
+board
+concept
+industry
