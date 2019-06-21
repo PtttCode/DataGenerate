@@ -134,7 +134,7 @@ def delete_randomly(field, all_corpus, split_rate=0.5, intent=None):
     for idx, sen in enumerate(corpus):
         words = [i for i in tokenizer.cut(sen)]
         if len(words) <= 3:
-            print(words, sen)
+            logger.info(words, sen)
             continue
         tfidf = jieba.analyse.extract_tags(sen, withWeight=True)
 
@@ -153,9 +153,12 @@ def delete_randomly(field, all_corpus, split_rate=0.5, intent=None):
                 screen_corpus.append(cp)
 
         pattern = "|".join(single_words)
-        cp = "{}\t{}\n".format(re.sub(pattern, "", sen), labels[idx])
-        if cp not in all_corpus and cp not in new_corpus:
-            screen_corpus.append(cp)
+        try:
+            cp = "{}\t{}\n".format(re.sub(pattern, "", sen), labels[idx])
+            if cp not in all_corpus and cp not in new_corpus:
+                screen_corpus.append(cp)
+        except Exception as e:
+            logger.info(e.args)
 
         new_corpus.extend(screen_corpus)
         dic[sen] = screen_corpus

@@ -1,5 +1,4 @@
 import json
-import requests
 
 
 from api.base import BaseHandler
