@@ -279,6 +279,8 @@ def synonyms_run(field, all_corpus, method, ele_num=3, intent=None):
             continue
 
         word_list = method(words, ele_num)
+        if not word_list:
+            continue
         new_sen = "".join(word_list) if isinstance(word_list, list) else "".join([i for i in word_list])
         cp = "{}\t{}\n".format(new_sen, labels[idx])
         if cp not in all_corpus and cp not in new_corpus:
