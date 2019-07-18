@@ -140,9 +140,9 @@ def token_corpus(filename):
     return word_index, word2pos, corpus
 
 
-def get_most_similar(model, pos_word, vocab, topn=20, pos_tag=None, word2pos=None):
+def get_most_similar(model, pos_word, vocab, topn=20, restric_vocab=None, pos_tag=None, word2pos=None):
     try:
-        res = model.most_similar(positive=[pos_word], negative=[], topn=topn * 20)
+        res = model.most_similar(positive=[pos_word], negative=[], topn=topn * 20, restric_vocab=restric_vocab)
     except KeyError as e:
         logger.info("[!] Not in vocab pos_word = {}".format(pos_word))
         yield []
@@ -152,15 +152,21 @@ def get_most_similar(model, pos_word, vocab, topn=20, pos_tag=None, word2pos=Non
 
 
 @time_cal
-def write_excel(word_index, word2pos, word2vec_model, filename, thresholds):
+def write_excel(word_index, word2pos, word2vec_model, filename, args):
     x = []
     for word in word_index:
         if word in word2pos:
             for pos_ in word2pos[word]:
                 # logger.info(word, pos_)
-                values_obj = get_most_similar(word2vec_model, pos_word=word, vocab=word_index, topn=20, pos_tag=pos_, word2pos=word2pos)
+                values_obj = get_most_similar(word2vec_model,
+                                              pos_word=word,
+                                              vocab=word_index,
+                                              topn=args["topn"],
+                                              restric_vocab=args["restric_vocab"],
+                                              pos_tag=pos_,
+                                              word2pos=word2pos)
                 similars = next(values_obj)
-                x.extend([[word, pos_, e[0], round(e[1], 6)] for e in similars if e[1] >= thresholds])
+                x.extend([[word, pos_, e[0], round(e[1], 6)] for e in similars if e[1] >= args["thresholds"] or pos_ == "eng"])
     df = pd.DataFrame(np.array(x), columns=['word1', "word1_pos", 'word2', 'similar'])
     df.to_excel(filename, encoding="utf8")
 

@@ -94,19 +94,21 @@ class SynonymsHandler(BaseHandler):
 class SyntaxHandler(BaseHandler):
 
     async def post(self):
-        priority = self.get_body_arguments("priority", PRIORITY_DEFAULT)
+        priority = self.get_body_arguments("priority")
         func = self.get_body_argument("func", "句式生成")
         min_rep_num = int(self.get_body_argument("min_rep_num", 1))
-        thresholds = int(self.get_body_argument("thresholds", 0.49))
+        thresholds = float(self.get_body_argument("thresholds", 0.49))
         limit = int(self.get_body_argument("limit", 2))
+        topn = int(self.get_body_argument("topn", 20))
+        restrci_vocab = int(self.get_body_argument("restrict_vocab", 2000000))
         file_metas = list(self.request.files.values())
 
-        args_list = ["priority", "min_rep_num", "thresholds", "limit"]
+        args_list = ["priority", "min_rep_num", "thresholds", "limit", "topn", "restrict_vocab"]
         args = {}
         for i in args_list:
             args[i] = eval(i)
 
-        logger.info(priority, min_rep_num)
+        logger.info(args)
 
         if len(file_metas) == 0 or func not in func_dict:
             return self.response({"code": 1, "msg": "请上传文件，确定领域和增强方法！", "data": []})
