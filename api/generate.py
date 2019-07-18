@@ -27,8 +27,8 @@ class GenerateHandler(BaseHandler):
         split_rate = self.get_body_argument("split_rate", 0.5)
         file_metas = list(self.request.files.values())
         
-        print(self.request.remote_ip)
-        print(field, intent, func, len(file_metas))
+        logger.info(self.request.remote_ip)
+        logger.info(field, intent, func, len(file_metas))
 
         if len(file_metas) == 0 or not field or func not in func_dict:
             return self.response({"code": 1, "msg": "请上传文件，确定领域和增强方法！", "data": []})
@@ -63,8 +63,8 @@ class SynonymsHandler(BaseHandler):
         ele_num = int(self.get_body_argument("ele_num", 3))
         file_metas = list(self.request.files.values())
 
-        print(field, intent, func, len(file_metas))
-        print(type(ele_num))
+        logger.info(field, intent, func, len(file_metas))
+        logger.info(type(ele_num))
 
         if len(file_metas) == 0 or not field or func not in func_dict:
             return self.response({"code": 1, "msg": "请上传文件，确定领域和增强方法！", "data": []})
@@ -106,7 +106,7 @@ class SyntaxHandler(BaseHandler):
         for i in args_list:
             args[i] = eval(i)
 
-        print(priority, min_rep_num, func, len(file_metas))
+        logger.info(priority, min_rep_num, func, len(file_metas))
 
         if len(file_metas) == 0 or func not in func_dict:
             return self.response({"code": 1, "msg": "请上传文件，确定领域和增强方法！", "data": []})

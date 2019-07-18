@@ -16,7 +16,7 @@ from settings.settings import logger, WORD_DEP, FIELD_DIR, stop_words
 def find_all_field():
     fields = [i for i in os.listdir(FIELD_DIR)]
     for field in fields:
-        print(field)
+        logger.info(field)
         update_words(FIELD_DIR, field)
 
 
@@ -40,8 +40,8 @@ def load_field_dict(filed):
     tokenizer.load_userdict("{}/{}.txt".format(WORD_DEP, filed))
     # words = [i for i in tokenizer.cut(sen)]
     # ana = jieba.analyse.extract_tags(sen, withFlag=True, withWeight=True)
-    # print(words)
-    # print(ana)
+    # logger.info(words)
+    # logger.info(ana)
 
     return tokenizer
 
@@ -77,7 +77,7 @@ def swap_randomly(field, all_corpus, split_rate=0.5, intent=None):
     for idx, sen in enumerate(corpus):
         words = [i for i in tokenizer.cut(sen)]
         if len(words) <= 3:
-            print(words, sen)
+            logger.info(words, sen)
             continue
         tfidf = jieba.analyse.extract_tags(sen, withWeight=True)
 
@@ -181,15 +181,15 @@ def cal_tfidf():
     #
     # transformer = TfidfTransformer()
     # tfidf = transformer.fit_transform(vectorizer.fit_transform(data))
-    # print(words.vocabulary_)
-    # print(res)
+    # logger.info(words.vocabulary_)
+    # logger.info(res)
     word = tfidf2.get_feature_names()
 
-    print(len(word))
+    logger.info(len(word))
     res = res[0]
-    print(len(res))
+    logger.info(len(res))
     sorted(res)
-    print(res)
+    logger.info(res)
 
 
 def translation_generate(all_corpus, intent=None):
@@ -206,12 +206,12 @@ def translation_generate(all_corpus, intent=None):
 
     for idx, sen in enumerate(corpus):
         if idx % 10 == 0:
-            print(idx)
+            logger.info(idx)
 
         trans_sen = [i for i in tencent_translation(tc, sen, ['en'])]
         # trans_sen = youdao_translate(youdao_translate(sen))
 
-        print(trans_sen)
+        logger.info(trans_sen)
         screen_corpus = []
         for i in trans_sen:
             cp = "{}\t{}\n".format(i, labels[idx])
@@ -275,7 +275,7 @@ def synonyms_run(field, all_corpus, method, ele_num=3, intent=None):
     for idx, sen in enumerate(corpus):
         words = [i for i in tokenizer.cut(sen)]
         if len(words) <= 3:
-            # print(words, sen)
+            # logger.info(words, sen)
             continue
 
         word_list = method(words, ele_num)
@@ -315,11 +315,11 @@ if __name__ == '__main__':
     # with open("语料_删除_数据增强_{}_{}_{}_{}".format(str(times), split_r, len(a), filename), "w", encoding="utf-8") as f:
     #     f.writelines(a)
     #
-    # print(len(data), len(new_cor))
-    # print(len(data), len(a))
+    # logger.info(len(data), len(new_cor))
+    # logger.info(len(data), len(a))
 
     # res = translation_generate(data)
-    # print(res)
+    # logger.info(res)
 
 
 

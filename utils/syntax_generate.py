@@ -10,6 +10,8 @@ from keras.preprocessing.text import Tokenizer
 from jieba import posseg as pseg
 from gensim.models import KeyedVectors
 
+from settings.settings import logger
+
 
 thu1 = thulac.thulac()  # 默认模式
 
@@ -19,7 +21,7 @@ def time_cal(func):
     def run(*args, **kwargs):
         start = time.time()
         result = func(*args, **kwargs)
-        print("函数{0}的运行时间为： {1}".format(func.__name__, time.time() - start))
+        logger.info("函数{0}的运行时间为： {1}".format(func.__name__, time.time() - start))
         return result
     return run
 
@@ -87,7 +89,7 @@ def run_func(corpus, filename, args):
 def synonym_replace(word_syntax, sent_list, idxs, synonym_dict):
     res = []
     sent = "".join(sent_list)
-    # print(word_syntax, sent_list, idxs)
+    # logger.info(word_syntax, sent_list, idxs)
     for idx in idxs:
         synonym_list = synonym_dict[word_syntax[idx]]
         for j in synonym_list:
@@ -111,7 +113,7 @@ def _cut(x, use_thulac=True):
 def get_pos(words, postags):
     d = {}
     for word, pos in zip(words, postags):
-        # print(word, pos)
+        # logger.info(word, pos)
         for w, p in zip(word.split(" "), pos.split(" ")):
             if w not in d:
                 d[w] = [p]
@@ -142,7 +144,7 @@ def get_most_similar(model, pos_word, vocab, topn=20, pos_tag=None, word2pos=Non
     try:
         res = model.most_similar(positive=[pos_word], negative=[], topn=topn * 20)
     except KeyError as e:
-        print("[!] Not in vocab pos_word = {}".format(pos_word))
+        logger.info("[!] Not in vocab pos_word = {}".format(pos_word))
         yield []
     res = [(e1, e2) for e1, e2 in res if e1 in vocab and e1 in word2pos]
     res = [(e1, e2) for e1, e2 in res if pos_tag in word2pos[e1]]
@@ -155,7 +157,7 @@ def write_excel(word_index, word2pos, word2vec_model, filename, thresholds):
     for word in word_index:
         if word in word2pos:
             for pos_ in word2pos[word]:
-                # print(word, pos_)
+                # logger.info(word, pos_)
                 values_obj = get_most_similar(word2vec_model, pos_word=word, vocab=word_index, topn=20, pos_tag=pos_, word2pos=word2pos)
                 similars = next(values_obj)
                 x.extend([[word, pos_, e[0], round(e[1], 6)] for e in similars if e[1] >= thresholds])

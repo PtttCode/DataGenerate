@@ -35,18 +35,18 @@ class Application(tornado.web.Application):
 
 
 def main():
+    oc_path = "data/original_corpus/"
+    if not os.path.exists(oc_path):
+        os.makedirs(oc_path + "generate")
+        os.makedirs(oc_path + "synonyms_generate")
+        os.makedirs(oc_path + "syntax_generate")
+
     tornado.options.parse_command_line()
     http_server = tornado.httpserver.HTTPServer(Application(), xheaders=True)
     http_server.bind(PORT)
     http_server.start()
     logger.info("server start, listen at {}".format(PORT))
     tornado.ioloop.IOLoop.current().start()
-
-    oc_path = "data/original_corpus/"
-    if not os.path.exists(oc_path):
-        os.makedirs(oc_path+"generate")
-        os.makedirs(oc_path+"synonyms_generate")
-        os.makedirs(oc_path+"syntax_generate")
 
 
 if __name__ == "__main__":
