@@ -10,14 +10,14 @@ import itertools
 import jieba.analyse
 from sklearn.feature_extraction.text import TfidfVectorizer, TfidfTransformer, CountVectorizer
 
-from settings.settings import logger, word_dep, field_dir, stop_words
+from settings.settings import logger, WORD_DEP, FIELD_DIR, stop_words
 
 
 def find_all_field():
-    fields = [i for i in os.listdir(field_dir)]
+    fields = [i for i in os.listdir(FIELD_DIR)]
     for field in fields:
         print(field)
-        update_words(field_dir, field)
+        update_words(FIELD_DIR, field)
 
 
 def update_words(work_dir, field, tfidf=3):
@@ -28,7 +28,7 @@ def update_words(work_dir, field, tfidf=3):
                 with open("{}/{}".format(work_dir, filename), "r", encoding="utf-8") as f:
                     datas.extend([i.strip() for i in f.readlines()])
 
-    with open("{}/{}.txt".format(word_dep, field), "w", encoding="utf-8") as f:
+    with open("{}/{}.txt".format(WORD_DEP, field), "w", encoding="utf-8") as f:
         datas = ["{} {}\n".format(i.strip(), tfidf) for i in datas if i]
         f.writelines(datas)
 
@@ -37,7 +37,7 @@ def load_field_dict(filed):
     sen = "查看stock"
     # tokenizer = jieba.analyse.default_tfidf
     tokenizer = jieba.Tokenizer()
-    tokenizer.load_userdict("{}/{}.txt".format(word_dep, filed))
+    tokenizer.load_userdict("{}/{}.txt".format(WORD_DEP, filed))
     # words = [i for i in tokenizer.cut(sen)]
     # ana = jieba.analyse.extract_tags(sen, withFlag=True, withWeight=True)
     # print(words)

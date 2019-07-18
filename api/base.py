@@ -6,6 +6,10 @@ import re
 
 class BaseHandler(tornado.web.RequestHandler):
 
+    @property
+    def w2v(self):
+        return self.application.w2v
+
     def json_dumps(self, obj):
         # return json.dumps(obj, default=alchemyencoder,
         # ensure_ascii=False).encode("utf-8")

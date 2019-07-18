@@ -1,16 +1,19 @@
 import json
+import time
 
 
 from api.base import BaseHandler
-from settings.settings import logger
+from settings.settings import logger, PRIORITY_DEFAULT
 from utils.data_generate import delete_randomly, swap_randomly, insert_randomly, replace_randomly, synonyms_run
+from utils.syntax_generate import syntax_generate
 
 
 func_dict = {
     "删除": delete_randomly,
     "交换": swap_randomly,
     "替换": replace_randomly,
-    "插入": insert_randomly
+    "插入": insert_randomly,
+    "句式生成": syntax_generate,
 
 }
 
@@ -23,7 +26,8 @@ class GenerateHandler(BaseHandler):
         func = self.get_body_argument("func")
         split_rate = self.get_body_argument("split_rate", 0.5)
         file_metas = list(self.request.files.values())
-
+        
+        print(self.request.remote_ip)
         print(field, intent, func, len(file_metas))
 
         if len(file_metas) == 0 or not field or func not in func_dict:
@@ -34,9 +38,9 @@ class GenerateHandler(BaseHandler):
                 meta = metas[0]
                 filename = meta["filename"]
                 logger.info("正在上传文件：{}".format(filename))
-                # rename_prefix = time.strftime('%Y%m%d%H%M%S', time.localtime(time.time()))
+                rename_prefix = time.strftime('%Y%m%d%H%M%S', time.localtime(time.time()))
                 # rename = "{}_{}".format(rename_prefix, file_name)
-                save_path = "data/original_corpus/{}".format(filename)
+                save_path = "data/original_corpus/generate/{}_{}".format(str(rename_prefix), filename)
                 with open(save_path, 'w', encoding="utf-8") as f:
                     f.write(meta["body"].decode())
 
@@ -70,9 +74,9 @@ class SynonymsHandler(BaseHandler):
                 meta = metas[0]
                 filename = meta["filename"]
                 logger.info("正在上传文件：{}".format(filename))
-                # rename_prefix = time.strftime('%Y%m%d%H%M%S', time.localtime(time.time()))
+                rename_prefix = time.strftime('%Y%m%d%H%M%S', time.localtime(time.time()))
                 # rename = "{}_{}".format(rename_prefix, file_name)
-                save_path = "data/original_corpus/{}".format(filename)
+                save_path = "data/original_corpus/synonyms_generate/{}_{}".format(str(rename_prefix), filename)
                 with open(save_path, 'w', encoding="utf-8") as f:
                     f.write(meta["body"].decode())
 
@@ -85,5 +89,43 @@ class SynonymsHandler(BaseHandler):
                                       intent=intent)
 
                 return self.response({"code": 0, "msg": "数据增强之同义词{}成功！".format(func), "data": res})
+
+
+class SyntaxHandler(BaseHandler):
+
+    async def post(self):
+        priority = self.get_body_arguments("priority", PRIORITY_DEFAULT)
+        func = self.get_body_argument("func", "句式生成")
+        min_rep_num = int(self.get_body_argument("min_rep_num", 1))
+        thresholds = int(self.get_body_argument("thresholds", 0.49))
+        limit = int(self.get_body_argument("limit", 2))
+        file_metas = list(self.request.files.values())
+
+        args_list = ["priority", "min_rep_num", "thresholds", "limit"]
+        args = {}
+        for i in args_list:
+            args[i] = eval(i)
+
+        print(priority, min_rep_num, func, len(file_metas))
+
+        if len(file_metas) == 0 or func not in func_dict:
+            return self.response({"code": 1, "msg": "请上传文件，确定领域和增强方法！", "data": []})
+        else:
+            generate_func = func_dict[func]
+            for metas in file_metas:
+                meta = metas[0]
+                filename = meta["filename"]
+                logger.info("正在上传文件：{}".format(filename))
+                rename_prefix = time.strftime('%Y%m%d%H%M%S', time.localtime(time.time()))
+                # rename = "{}_{}".format(rename_prefix, file_name)
+                save_path = "data/original_corpus/syntax_generate/{}_{}".format(str(rename_prefix), filename)
+                words_filename = "data/original_corpus/syntax_generate/{}_words_properties.xlsx".format(str(rename_prefix))
+                with open(save_path, 'w', encoding="utf-8") as f:
+                    f.write(meta["body"].decode())
+
+                res = generate_func(self.w2v, save_path, words_filename, args)
+
+                return self.response({"code": 0, "msg": "数据增强之同义词{}成功！".format(func), "data": res})
+
 
 

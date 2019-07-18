@@ -1,8 +1,10 @@
 from settings.logger import Logger
 
 
-word_dep = "data/word_depository"
-field_dir = "data/field"
+WORD_DEP = "data/word_depository"
+FIELD_DIR = "data/field"
+WORD2VEC_PATH = "small_cc_zh.vec"
+PRIORITY_DEFAULT = ["v", "n", "vn", "a", "t", "d", "eng", "r", "m", "uj", "c", "p", "q", "l"]
 
 logger = Logger()
 

@@ -3,3 +3,11 @@ jieba
 sklearn
 ptttloggg
 synonyms
+gensim
+tensorflow==1.12
+keras
+thulac
+numpy
+pandas
+xlrd
+openpyxl
