@@ -134,15 +134,16 @@ def token_corpus(filename):
     token.fit_on_texts(all_char_list)
     word_index = token.word_index
     word2pos = get_pos(df["words"].tolist(), df["flags"].tolist())
-    df.to_excel("thulac_output.xlsx")
+    date = filename.split("_")[0]
+    df.to_excel("{}_thulac_output.xlsx".format(date))
     corpus = ["\t".join(i)+"\n" for i in zip(df["words"], df["flags"], df["意图"])]
     del token
     return word_index, word2pos, corpus
 
 
-def get_most_similar(model, pos_word, vocab, topn=20, restric_vocab=None, pos_tag=None, word2pos=None):
+def get_most_similar(model, pos_word, vocab, topn=20, restrict_vocab=None, pos_tag=None, word2pos=None):
     try:
-        res = model.most_similar(positive=[pos_word], negative=[], topn=topn * 20, restric_vocab=restric_vocab)
+        res = model.most_similar(positive=[pos_word], negative=[], topn=topn * 20, restrict_vocab=restrict_vocab)
     except KeyError as e:
         logger.info("[!] Not in vocab pos_word = {}".format(pos_word))
         yield []
@@ -162,7 +163,7 @@ def write_excel(word_index, word2pos, word2vec_model, filename, args):
                                               pos_word=word,
                                               vocab=word_index,
                                               topn=args["topn"],
-                                              restric_vocab=args["restric_vocab"],
+                                              restrict_vocab=args["restrict_vocab"],
                                               pos_tag=pos_,
                                               word2pos=word2pos)
                 similars = next(values_obj)
@@ -173,10 +174,10 @@ def write_excel(word_index, word2pos, word2vec_model, filename, args):
 
 def syntax_generate(word2vec_model, corpus_filename, words_filename, args):
     word_index, word_pos, corpus = token_corpus(corpus_filename)
-    write_excel(word_index, word_pos, word2vec_model, words_filename, args["thresholds"])
+    write_excel(word_index, word_pos, word2vec_model, words_filename, args)
     res = run_func(corpus, words_filename, args)
 
-    return res
+    return list(set(res))
 
 
 

@@ -100,7 +100,7 @@ class SyntaxHandler(BaseHandler):
         thresholds = float(self.get_body_argument("thresholds", 0.49))
         limit = int(self.get_body_argument("limit", 2))
         topn = int(self.get_body_argument("topn", 20))
-        restrci_vocab = int(self.get_body_argument("restrict_vocab", 2000000))
+        restrict_vocab = int(self.get_body_argument("restrict_vocab", 2000000))
         file_metas = list(self.request.files.values())
 
         args_list = ["priority", "min_rep_num", "thresholds", "limit", "topn", "restrict_vocab"]
