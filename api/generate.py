@@ -28,7 +28,7 @@ class GenerateHandler(BaseHandler):
         file_metas = list(self.request.files.values())
         
         logger.info(self.request.remote_ip)
-        logger.info(field, intent, func, len(file_metas))
+        logger.info(field, intent)
 
         if len(file_metas) == 0 or not field or func not in func_dict:
             return self.response({"code": 1, "msg": "请上传文件，确定领域和增强方法！", "data": []})
@@ -63,7 +63,7 @@ class SynonymsHandler(BaseHandler):
         ele_num = int(self.get_body_argument("ele_num", 3))
         file_metas = list(self.request.files.values())
 
-        logger.info(field, intent, func, len(file_metas))
+        logger.info(field, intent)
         logger.info(type(ele_num))
 
         if len(file_metas) == 0 or not field or func not in func_dict:
@@ -106,7 +106,7 @@ class SyntaxHandler(BaseHandler):
         for i in args_list:
             args[i] = eval(i)
 
-        logger.info(priority, min_rep_num, func, len(file_metas))
+        logger.info(priority, min_rep_num)
 
         if len(file_metas) == 0 or func not in func_dict:
             return self.response({"code": 1, "msg": "请上传文件，确定领域和增强方法！", "data": []})
@@ -120,8 +120,8 @@ class SyntaxHandler(BaseHandler):
                 # rename = "{}_{}".format(rename_prefix, file_name)
                 save_path = "data/original_corpus/syntax_generate/{}_{}".format(str(rename_prefix), filename)
                 words_filename = "data/original_corpus/syntax_generate/{}_words_properties.xlsx".format(str(rename_prefix))
-                with open(save_path, 'w', encoding="utf-8") as f:
-                    f.write(meta["body"].decode())
+                with open(save_path, 'wb') as f:
+                    f.write(meta["body"])
 
                 res = generate_func(self.w2v, save_path, words_filename, args)
 
