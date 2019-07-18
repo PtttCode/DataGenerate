@@ -6,7 +6,7 @@ import ptttloggg
 import os
 
 
-from api.generate import GenerateHandler, SynonymsHandler
+from api.generate import GenerateHandler, SynonymsHandler, SyntaxHandler
 from settings.settings import logger, WORD2VEC_PATH
 from utils.data_generate import find_all_field
 from utils.syntax_generate import init_word2vec
@@ -14,6 +14,7 @@ from utils.syntax_generate import init_word2vec
 
 urls = [(r"/generate", GenerateHandler),
         (r"/synonyms", SynonymsHandler),
+        (r"/syntax", SyntaxHandler),
         ]
 PORT = 8080
 
