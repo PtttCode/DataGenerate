@@ -5,7 +5,7 @@ import time
 from api.base import BaseHandler
 from settings.settings import logger, PRIORITY_DEFAULT
 from utils.data_generate import delete_randomly, swap_randomly, insert_randomly, replace_randomly, synonyms_run
-from utils.syntax_generate import syntax_generate
+from utils.syntax_generate import syntax_generate, _cut
 
 
 func_dict = {
@@ -92,15 +92,23 @@ class SynonymsHandler(BaseHandler):
 
 
 class SyntaxHandler(BaseHandler):
+    async def get(self):
+        body = self.json_request()
+        sentences = body.get("sentences")
+        res = [_cut(i) for i in sentences]
+
+        logger.info(res)
+        return self.response({"code": 0, "data": res})
 
     async def post(self):
         priority = self.get_body_arguments("priority")
-        func = self.get_body_argument("func", "句式生成")
         min_rep_num = int(self.get_body_argument("min_rep_num", 1))
         thresholds = float(self.get_body_argument("thresholds", 0.49))
         limit = int(self.get_body_argument("limit", 2))
         topn = int(self.get_body_argument("topn", 20))
         restrict_vocab = int(self.get_body_argument("restrict_vocab", 2000000))
+        abandon_dict = self.get_body_arguments("abandon_dict")
+        func = self.get_body_argument("func", "句式生成")
         file_metas = list(self.request.files.values())
 
         args_list = ["priority", "min_rep_num", "thresholds", "limit", "topn", "restrict_vocab"]

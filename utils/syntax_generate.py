@@ -80,21 +80,22 @@ def run_func(corpus, filename, args):
                     indexs.append(pos)
                     break
 
-        new_sents = synonym_replace(words, sents[idx], indexs, synonym_dict)
+        new_sents = [i for i in synonym_replace(words, sents[idx], indexs, synonym_dict)]
+        if labels[idx] in args["abandon_dict"]:
+            new_sents = [i for i in new_sents if len([j for j in args["abandon_dict"][labels[idx]] if j in i]) == 0]
         res.extend(["{}\t{}\n".format(i, labels[idx]) for i in new_sents])
         res.append("----------------------------------------------------------------------\n")
     return res
 
 
 def synonym_replace(word_syntax, sent_list, idxs, synonym_dict):
-    res = []
     sent = "".join(sent_list)
     # logger.info(word_syntax, sent_list, idxs)
     for idx in idxs:
         synonym_list = synonym_dict[word_syntax[idx]]
         for j in synonym_list:
-            res.append(sent.replace(sent_list[idx], j))
-    return res
+            sent = sent.replace(sent_list[idx], j)
+            yield sent
 
 
 def _cut(x, use_thulac=True):
@@ -107,7 +108,7 @@ def _cut(x, use_thulac=True):
     # words = [word + ''+ flag for word, flag in zip(words, flags)]
     words = " ".join(words)
     flags = " ".join(flags)
-    return words, flags
+    yield words, flags
 
 
 def get_pos(words, postags):
@@ -118,7 +119,7 @@ def get_pos(words, postags):
             if w not in d:
                 d[w] = [p]
             else:
-                if not p in d[w]:
+                if p not in d[w]:
                     d[w].append(p)
     return d
 
