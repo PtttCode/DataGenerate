@@ -108,7 +108,7 @@ def _cut(x, use_thulac=True):
     # words = [word + ''+ flag for word, flag in zip(words, flags)]
     words = " ".join(words)
     flags = " ".join(flags)
-    yield words, flags
+    return words, flags
 
 
 def get_pos(words, postags):

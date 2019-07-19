@@ -93,7 +93,7 @@ class SynonymsHandler(BaseHandler):
 
 class SyntaxHandler(BaseHandler):
     async def get(self):
-        body = self.json_request()
+        body = self.json_request
         sentences = body.get("sentences")
         res = [_cut(i) for i in sentences]
 
