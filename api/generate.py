@@ -101,17 +101,18 @@ class SyntaxHandler(BaseHandler):
         return self.response({"code": 0, "data": res})
 
     async def post(self):
-        priority = self.get_body_arguments("priority")
-        min_rep_num = int(self.get_body_argument("min_rep_num", 1))
-        thresholds = float(self.get_body_argument("thresholds", 0.49))
-        limit = int(self.get_body_argument("limit", 2))
-        topn = int(self.get_body_argument("topn", 20))
-        restrict_vocab = int(self.get_body_argument("restrict_vocab", 2000000))
-        abandon_dict = self.get_body_arguments("abandon_dict")
-        func = self.get_body_argument("func", "句式生成")
+        params = self.get_body_argument("params")
+        priority = params.get("priority", PRIORITY_DEFAULT)
+        min_rep_num = params.get("min_rep_num", 1)
+        thresholds = params.get("thresholds", 0.49)
+        limit = params.get("limit", 2)
+        topn = params.get("topn", 20)
+        restrict_vocab = params.get("restrict_vocab", 2000000)
+        abandon_dict = params("abandon_dict", {})
+        func = params.get("func", "句式生成")
         file_metas = list(self.request.files.values())
 
-        args_list = ["priority", "min_rep_num", "thresholds", "limit", "topn", "restrict_vocab"]
+        args_list = ["priority", "min_rep_num", "thresholds", "limit", "topn", "restrict_vocab", "abandon_dict"]
         args = {}
         for i in args_list:
             args[i] = eval(i)
