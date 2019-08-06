@@ -7,9 +7,8 @@ import os
 
 
 from api.generate import GenerateHandler, SynonymsHandler, SyntaxHandler
-from settings.settings import logger, WORD2VEC_PATH
+from settings.settings import logger, w2v
 from utils.data_generate import find_all_field
-from utils.syntax_generate import init_word2vec
 
 
 urls = [(r"/generate", GenerateHandler),
@@ -29,7 +28,7 @@ class Application(tornado.web.Application):
             # static_url_prefix='/test/',
         )
         super(Application, self).__init__(handlers, **settings)
-        self.w2v = init_word2vec(word2vec_path=WORD2VEC_PATH)
+        self.w2v = w2v
         find_all_field()
         ptttloggg.initLogConf()
 

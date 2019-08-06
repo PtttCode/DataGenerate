@@ -101,14 +101,14 @@ class SyntaxHandler(BaseHandler):
         return self.response({"code": 0, "data": res})
 
     async def post(self):
-        params = self.get_body_argument("params")
+        params = eval(self.get_body_argument("params"))
         priority = params.get("priority", PRIORITY_DEFAULT)
         min_rep_num = params.get("min_rep_num", 1)
         thresholds = params.get("thresholds", 0.49)
         limit = params.get("limit", 2)
         topn = params.get("topn", 20)
         restrict_vocab = params.get("restrict_vocab", 2000000)
-        abandon_dict = params("abandon_dict", {})
+        abandon_dict = params.get("abandon_dict", {})
         func = params.get("func", "句式生成")
         file_metas = list(self.request.files.values())
 

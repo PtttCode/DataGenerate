@@ -74,7 +74,7 @@ def run_func(corpus, filename, args):
         indexs = []
 
         for i in range(split_num):
-            for j in args["priority"]:
+            for j in args["priority"][i:]:
                 pos = syntaxs[idx].index(j) if j in syntaxs[idx] else 0
                 if (j in syntaxs[idx]) and (words[pos] in synonym_dict):
                     indexs.append(pos)
@@ -84,7 +84,6 @@ def run_func(corpus, filename, args):
         if labels[idx] in args["abandon_dict"]:
             new_sents = [i for i in new_sents if len([j for j in args["abandon_dict"][labels[idx]] if j in i]) == 0]
         res.extend(["{}\t{}\n".format(i, labels[idx]) for i in new_sents])
-        res.append("----------------------------------------------------------------------\n")
     return res
 
 
@@ -94,8 +93,8 @@ def synonym_replace(word_syntax, sent_list, idxs, synonym_dict):
     for idx in idxs:
         synonym_list = synonym_dict[word_syntax[idx]]
         for j in synonym_list:
-            sent = sent.replace(sent_list[idx], j)
-            yield sent
+            res = sent.replace(sent_list[idx], j)
+            yield res
 
 
 def _cut(x, use_thulac=True):

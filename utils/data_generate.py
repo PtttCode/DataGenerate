@@ -10,7 +10,7 @@ import itertools
 import jieba.analyse
 from sklearn.feature_extraction.text import TfidfVectorizer, TfidfTransformer, CountVectorizer
 
-from settings.settings import logger, WORD_DEP, FIELD_DIR, stop_words
+from settings.settings import logger, WORD_DEP, FIELD_DIR, stop_words, ask_words, w2v
 
 
 def find_all_field():
@@ -96,7 +96,7 @@ def swap_randomly(field, all_corpus, split_rate=0.5, intent=None):
 
         screen_corpus = []
         for i in added_corpus:
-            cp = "{}\t{}\n".format(sen.replace(i, ""), labels[idx])
+            cp = "{}\t{}\n".format(i, labels[idx])
             if cp not in all_corpus and cp not in new_corpus:
                 screen_corpus.append(cp)
 
@@ -229,6 +229,12 @@ def get_synonyms(word):
 
 
 def insert_randomly(words, n):
+    """
+    随机插入同义词
+    :param words:   切词后的列表
+    :param n:   插入次数
+    :return:
+    """
     new_words = words.copy()
     for _ in range(n):
         synonyms = []
@@ -242,7 +248,7 @@ def insert_randomly(words, n):
         random_synonym = random.choice(synonyms)
         random_idx = random.randint(0, len(new_words)-1)
         new_words.insert(random_idx, random_synonym)
-    return new_words
+    return [new_words]
 
 
 def replace_randomly(words, n):
@@ -251,7 +257,7 @@ def replace_randomly(words, n):
     random.shuffle(random_word_list)
     num_replaced = 0
     for random_word in random_word_list:
-        synonyms = get_synonyms(random_word)
+        synonyms = w2v.most_similar(positive=[random], topn=1)[0][0]
         if len(synonyms) >= 1:
             synonym = random.choice(synonyms)
             new_words = [synonym if word == random_word else word for word in new_words]
@@ -259,8 +265,18 @@ def replace_randomly(words, n):
         if num_replaced >= n:
             break
 
-    sentence = ' '.join(new_words)
-    new_words = sentence.split(' ')
+    # sentence = ' '.join(new_words)
+    # new_words = sentence.split(' ')
+    return [new_words]
+
+
+def insert_stop_words(words, n):
+    if n not in [-1, 0, 1]:
+        return []
+
+    insert_idx = random.randint(1, len(words)-1) if n == -1 else n*len(words)
+    new_words = [words.copy().insert(insert_idx, word) for word in ask_words]
+
     return new_words
 
 
@@ -278,15 +294,16 @@ def synonyms_run(field, all_corpus, method, ele_num=3, intent=None):
             # logger.info(words, sen)
             continue
 
-        word_list = method(words, ele_num)
+        word_list = ["".join(i) for i in method(words, ele_num)]
         if not word_list:
             continue
-        new_sen = "".join(word_list) if isinstance(word_list, list) else "".join([i for i in word_list])
-        cp = "{}\t{}\n".format(new_sen, labels[idx])
-        if cp not in all_corpus and cp not in new_corpus:
-            new_corpus.append(cp)
+        for new_sen in word_list:
+            # new_sen = "".join(new_sen) if isinstance(word_list, list) else "".join([i for i in word_list])
+            cp = "{}\t{}\n".format(new_sen, labels[idx])
 
-        dic[sen] = cp
+            if cp not in all_corpus and cp not in new_corpus:
+                new_corpus.append(cp)
+        dic[sen] = [list(set(word_list))]
 
     return new_corpus, dic
 
