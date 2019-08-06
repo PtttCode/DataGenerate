@@ -10,7 +10,8 @@ import itertools
 import jieba.analyse
 from sklearn.feature_extraction.text import TfidfVectorizer, TfidfTransformer, CountVectorizer
 
-from settings.settings import logger, WORD_DEP, FIELD_DIR, stop_words, ask_words, w2v
+from settings.settings import logger, WORD_DEP, FIELD_DIR, stop_words, ask_words
+from utils.init_w2v import w2v
 
 
 def find_all_field():
@@ -257,7 +258,11 @@ def replace_randomly(words, n):
     random.shuffle(random_word_list)
     num_replaced = 0
     for random_word in random_word_list:
-        synonyms = w2v.most_similar(positive=[random], topn=1)[0][0]
+        try:
+            synonyms = w2v.most_similar(positive=[random_word], topn=1)[0][0]
+        except KeyError as e:
+            logger.info("词向量无此词：{}".format(random_word))
+            continue
         if len(synonyms) >= 1:
             synonym = random.choice(synonyms)
             new_words = [synonym if word == random_word else word for word in new_words]
@@ -275,7 +280,13 @@ def insert_stop_words(words, n):
         return []
 
     insert_idx = random.randint(1, len(words)-1) if n == -1 else n*len(words)
-    new_words = [words.copy().insert(insert_idx, word) for word in ask_words]
+
+    new_words = []
+    for word in ask_words:
+        new_sen = words.copy()
+        if new_sen[insert_idx] not in word and word not in new_sen[insert_idx]:
+            new_sen.insert(insert_idx, word)
+        new_words.append(new_sen)
 
     return new_words
 
