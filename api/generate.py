@@ -4,15 +4,17 @@ import time
 
 from api.base import BaseHandler
 from settings.settings import logger, PRIORITY_DEFAULT
-from utils.data_generate import delete_randomly, swap_randomly, insert_randomly, replace_randomly, synonyms_run
+from utils.data_generate import delete_randomly, swap_randomly, insert_randomly, replace_randomly, \
+    synonyms_run, insert_stop_words
 from utils.syntax_generate import syntax_generate, _cut
+from utils.init_w2v import w2v
 
 
 func_dict = {
     "删除": delete_randomly,
     "交换": swap_randomly,
     "替换": replace_randomly,
-    "插入": insert_randomly,
+    "插入": insert_stop_words,    # insert_randomly
     "句式生成": syntax_generate,
 
 }
@@ -134,7 +136,7 @@ class SyntaxHandler(BaseHandler):
                 with open(save_path, 'wb') as f:
                     f.write(meta["body"])
 
-                res = generate_func(self.w2v, save_path, words_filename, args)
+                res = generate_func(w2v, save_path, words_filename, args)
 
                 return self.response({"code": 0, "msg": "数据增强之同义词{}成功！".format(func), "data": res})
 

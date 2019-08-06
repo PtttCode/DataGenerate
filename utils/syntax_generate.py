@@ -8,7 +8,6 @@ import pandas as pd
 
 from keras.preprocessing.text import Tokenizer
 from jieba import posseg as pseg
-from gensim.models import KeyedVectors
 
 from settings.settings import logger
 
@@ -24,13 +23,6 @@ def time_cal(func):
         logger.info("函数{0}的运行时间为： {1}".format(func.__name__, time.time() - start))
         return result
     return run
-
-
-def init_word2vec(word2vec_path):
-    word2vec_model = KeyedVectors.load(word2vec_path)
-    word2vec_model.most_similar(positive=["初始化"], topn=1)
-
-    return word2vec_model
 
 
 @time_cal

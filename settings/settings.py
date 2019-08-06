@@ -1,5 +1,4 @@
 from settings.logger import Logger
-from utils.syntax_generate import init_word2vec
 
 
 WORD_DEP = "data/word_depository"
@@ -18,5 +17,4 @@ with open('data/stop/HIT.txt', "r", encoding="utf-8") as f:
 with open('data/stop/ask_words.txt', "r", encoding="utf-8") as f:
     ask_words = [i.strip() for i in f.readlines()]
 
-w2v = init_word2vec(word2vec_path=WORD2VEC_PATH)
 
