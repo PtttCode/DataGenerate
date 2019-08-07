@@ -252,7 +252,7 @@ def insert_randomly(words, n):
     return [new_words]
 
 
-def replace_randomly(words, n):
+def replace_randomly(words, n, useless_words=None):
     new_words = words.copy()
     random_word_list = list(set([word for word in words if word not in stop_words]))
     random.shuffle(random_word_list)
@@ -275,14 +275,15 @@ def replace_randomly(words, n):
     return [new_words]
 
 
-def insert_stop_words(words, n):
+def insert_stop_words(words, n, useless_words=None):
     if n not in [-1, 0, 1]:
         return []
 
     insert_idx = random.randint(1, len(words)-1) if n == -1 else n*len(words)
+    useless_words = ask_words if not useless_words else useless_words
 
     new_words = []
-    for word in ask_words:
+    for word in useless_words:
         new_sen = words.copy()
         if new_sen[insert_idx] not in word and word not in new_sen[insert_idx]:
             new_sen.insert(insert_idx, word)
@@ -291,7 +292,7 @@ def insert_stop_words(words, n):
     return new_words
 
 
-def synonyms_run(field, all_corpus, method, ele_num=3, intent=None):
+def synonyms_run(field, all_corpus, method, ele_num=3, intent=None, useless_words=None):
     tokenizer = load_field_dict(field)
     corpus, labels = get_corpus_label(all_corpus, intent)
     if not corpus:
@@ -305,7 +306,7 @@ def synonyms_run(field, all_corpus, method, ele_num=3, intent=None):
             # logger.info(words, sen)
             continue
 
-        word_list = ["".join(i) for i in method(words, ele_num)]
+        word_list = ["".join(i) for i in method(words, ele_num, useless_words)]
         if not word_list:
             continue
         for new_sen in word_list:

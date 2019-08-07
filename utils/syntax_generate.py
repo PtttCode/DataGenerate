@@ -1,4 +1,5 @@
 # coding:utf-8
+import os
 import json
 import time
 import thulac
@@ -9,7 +10,7 @@ import pandas as pd
 from keras.preprocessing.text import Tokenizer
 from jieba import posseg as pseg
 
-from settings.settings import logger
+from settings.settings import logger, SYNTAX_PATH
 
 
 thu1 = thulac.thulac()  # 默认模式
@@ -55,7 +56,7 @@ def load_words(filename):
 def run_func(corpus, filename, args):
     res = []
     sents = [i.strip().split("\t")[0].split(" ") for i in corpus]
-    syntaxs = [i.strip().split("\t")[1].split(" ") for i in corpus]
+    syntaxs = [i.strip().split("\t")[1].split(" ") for i in corpus] + args["syntaxs"]
     labels = [i.strip().split("\t")[2] for i in corpus]
     word_syntax = [["_".join(k) for k in zip(sents[i], syntaxs[i])] for i in range(len(sents))]
     word_dict, synonym_dict = load_words(filename)
@@ -126,8 +127,8 @@ def token_corpus(filename):
     token.fit_on_texts(all_char_list)
     word_index = token.word_index
     word2pos = get_pos(df["words"].tolist(), df["flags"].tolist())
-    date = filename.split("_")[0]
-    df.to_excel("{}_thulac_output.xlsx".format(date))
+    date = filename.split("/")[-1].split("_")[0]
+    df.to_excel(os.path.join(SYNTAX_PATH, "{}_thulac_output.xlsx".format(date)))
     corpus = ["\t".join(i)+"\n" for i in zip(df["words"], df["flags"], df["意图"])]
     del token
     return word_index, word2pos, corpus
@@ -170,6 +171,12 @@ def syntax_generate(word2vec_model, corpus_filename, words_filename, args):
     res = run_func(corpus, words_filename, args)
 
     return list(set(res))
+
+
+def return_syntaxs(corpus_filename):
+    word_index, word_pos, corpus = token_corpus(corpus_filename)
+    res = [i.strip().split("\t")[1].split(" ") for i in corpus]
+    return res
 
 
 

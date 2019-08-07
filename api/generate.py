@@ -1,12 +1,13 @@
+import os
 import json
 import time
 
 
 from api.base import BaseHandler
-from settings.settings import logger, PRIORITY_DEFAULT
+from settings.settings import logger, PRIORITY_DEFAULT, SYNONYMS_PATH, SYNTAX_PATH, GENERATE_PATH
 from utils.data_generate import delete_randomly, swap_randomly, insert_randomly, replace_randomly, \
     synonyms_run, insert_stop_words
-from utils.syntax_generate import syntax_generate, _cut
+from utils.syntax_generate import syntax_generate, _cut, return_syntaxs
 from utils.init_w2v import w2v
 
 
@@ -42,7 +43,7 @@ class GenerateHandler(BaseHandler):
                 logger.info("正在上传文件：{}".format(filename))
                 rename_prefix = time.strftime('%Y%m%d%H%M%S', time.localtime(time.time()))
                 # rename = "{}_{}".format(rename_prefix, file_name)
-                save_path = "data/original_corpus/generate/{}_{}".format(str(rename_prefix), filename)
+                save_path = os.path.join(GENERATE_PATH, "{}_{}".format(str(rename_prefix), filename))
                 with open(save_path, 'w', encoding="utf-8") as f:
                     f.write(meta["body"].decode())
 
@@ -63,6 +64,7 @@ class SynonymsHandler(BaseHandler):
         intent = self.get_body_arguments("intent")
         func = self.get_body_argument("func")
         ele_num = int(self.get_body_argument("ele_num", 3))
+        useless_words = self.get_body_arguments("useless_words")
         file_metas = list(self.request.files.values())
 
         logger.info(field, intent)
@@ -78,7 +80,7 @@ class SynonymsHandler(BaseHandler):
                 logger.info("正在上传文件：{}".format(filename))
                 rename_prefix = time.strftime('%Y%m%d%H%M%S', time.localtime(time.time()))
                 # rename = "{}_{}".format(rename_prefix, file_name)
-                save_path = "data/original_corpus/synonyms_generate/{}_{}".format(str(rename_prefix), filename)
+                save_path = os.path.join(SYNONYMS_PATH, "{}_{}".format(str(rename_prefix), filename))
                 with open(save_path, 'w', encoding="utf-8") as f:
                     f.write(meta["body"].decode())
 
@@ -88,7 +90,8 @@ class SynonymsHandler(BaseHandler):
                                       all_corpus=corpus,
                                       method=generate_func,
                                       ele_num=ele_num,
-                                      intent=intent)
+                                      intent=intent,
+                                      useless_words=useless_words)
 
                 return self.response({"code": 0, "msg": "数据增强之同义词{}成功！".format(func), "data": res})
 
@@ -110,11 +113,13 @@ class SyntaxHandler(BaseHandler):
         limit = params.get("limit", 2)
         topn = params.get("topn", 20)
         restrict_vocab = params.get("restrict_vocab", 2000000)
+        syntaxs = params.get("syntaxs", [])
         abandon_dict = params.get("abandon_dict", {})
         func = params.get("func", "句式生成")
         file_metas = list(self.request.files.values())
 
-        args_list = ["priority", "min_rep_num", "thresholds", "limit", "topn", "restrict_vocab", "abandon_dict"]
+        args_list = ["priority", "min_rep_num", "thresholds", "limit", "topn",
+                     "restrict_vocab", "abandon_dict", "syntaxs"]
         args = {}
         for i in args_list:
             args[i] = eval(i)
@@ -131,8 +136,8 @@ class SyntaxHandler(BaseHandler):
                 logger.info("正在上传文件：{}".format(filename))
                 rename_prefix = time.strftime('%Y%m%d%H%M%S', time.localtime(time.time()))
                 # rename = "{}_{}".format(rename_prefix, file_name)
-                save_path = "data/original_corpus/syntax_generate/{}_{}".format(str(rename_prefix), filename)
-                words_filename = "data/original_corpus/syntax_generate/{}_words_properties.xlsx".format(str(rename_prefix))
+                save_path = os.path.join(SYNTAX_PATH, "{}_{}".format(str(rename_prefix), filename))
+                words_filename = os.path.join(SYNTAX_PATH, "{}_words_properties.xlsx".format(str(rename_prefix)))
                 with open(save_path, 'wb') as f:
                     f.write(meta["body"])
 
@@ -140,5 +145,22 @@ class SyntaxHandler(BaseHandler):
 
                 return self.response({"code": 0, "msg": "数据增强之同义词{}成功！".format(func), "data": res})
 
+    async def put(self):
+        file_metas = list(self.request.files.values())
+        if len(file_metas) == 0:
+            return self.response({"code": 1, "msg": "请上传文件", "data": []})
+        else:
+            for metas in file_metas:
+                meta = metas[0]
+                filename = meta["filename"]
+                logger.info("正在上传文件：{}".format(filename))
+                rename_prefix = time.strftime('%Y%m%d%H%M%S', time.localtime(time.time()))
+                # rename = "{}_{}".format(rename_prefix, file_name)
+                save_path = os.path.join(SYNTAX_PATH, "{}_{}".format(str(rename_prefix), filename))
+                with open(save_path, 'wb') as f:
+                    f.write(meta["body"])
 
+                res = return_syntaxs(save_path)
+
+                return self.response({"code": 0, "msg": "返回句式表成功！", "data": res})
 

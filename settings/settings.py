@@ -1,10 +1,15 @@
+import os
+
 from settings.logger import Logger
 
 
 WORD_DEP = "data/word_depository"
 FIELD_DIR = "data/field"
 WORD2VEC_PATH = "small_cc_zh.vec"
-PRIORITY_DEFAULT = ["v", "n", "vn", "a", "t", "d", "eng", "r", "m", "uj", "c", "p", "q", "l"]
+GENERATE_PATH = "data/original_corpus/generate"
+SYNONYMS_PATH = "data/original_corpus/synonyms_generate"
+SYNTAX_PATH = "data/original_corpus/syntax_generate"
+PRIORITY_DEFAULT = os.environ.get("PRIORITY_DEFAULT", ["v", "n", "vn", "a", "t", "d", "eng", "r", "m", "uj", "c", "p", "q", "l"])
 
 logger = Logger()
 
