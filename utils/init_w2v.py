@@ -19,7 +19,7 @@ def build_word2vec(doc):
                            min_count=0, sg=1, hs=0, negative=6,
                            iter=10, workers=64, window=7, seed=2019)
 
-    model.wv.vocab
+    return model.wv
 
 
 w2v = init_word2vec(WORD2VEC_PATH)
