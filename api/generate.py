@@ -5,8 +5,8 @@ import time
 
 from api.base import BaseHandler
 from settings.settings import logger, PRIORITY_DEFAULT, SYNONYMS_PATH, SYNTAX_PATH, GENERATE_PATH
-from utils.data_generate import delete_randomly, swap_randomly, insert_randomly, replace_randomly, \
-    synonyms_run, insert_stop_words
+from utils.swap_delete_func import delete_randomly, swap_randomly
+from utils.insert_replace_func import insert_randomly, replace_randomly, synonyms_run, insert_stop_words
 from utils.syntax_generate import syntax_generate, _cut, return_syntaxs
 from utils.init_w2v import w2v
 
@@ -15,7 +15,8 @@ func_dict = {
     "删除": delete_randomly,
     "交换": swap_randomly,
     "替换": replace_randomly,
-    "插入": insert_stop_words,    # insert_randomly
+    "插入无用词": insert_stop_words,    # insert_randomly
+    "插入同义词": insert_randomly,
     "句式生成": syntax_generate,
 
 }

@@ -8,7 +8,7 @@ import os
 
 from api.generate import GenerateHandler, SynonymsHandler, SyntaxHandler
 from settings.settings import logger
-from utils.data_generate import find_all_field
+from utils.utils import find_all_field
 
 
 urls = [(r"/generate", GenerateHandler),
