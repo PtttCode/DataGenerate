@@ -10,7 +10,7 @@ def get_synonyms(word):
     return synonyms.nearby(word)[0]
 
 
-def insert_randomly(words, n):
+def insert_randomly(words, n, useless_word=None):
     """
     随机插入同义词
     :param words:   切词后的列表
@@ -18,19 +18,26 @@ def insert_randomly(words, n):
     :return:
     """
     new_words = words.copy()
+    res = []
+
     for _ in range(n):
         synonyms = []
         counter = 0
         while len(synonyms) < 1:
             random_word = new_words[random.randint(0, len(new_words)-1)]
-            synonyms = w2v.most_similar(random_word)[0][0]
+            try:
+                synonyms = w2v.most_similar(positive=[random_word], topn=1)[0][0]
+            except KeyError as e:
+                logger.info("词向量无此词：{}".format(random_word))
+
             counter += 1
             if counter >= 10:
-                return
+                return []
         random_synonym = random.choice(synonyms)
         random_idx = random.randint(0, len(new_words)-1)
         new_words.insert(random_idx, random_synonym)
-    return [new_words]
+        res.append(new_words)
+    return res
 
 
 def replace_randomly(words, n, useless_words=None):
@@ -38,6 +45,8 @@ def replace_randomly(words, n, useless_words=None):
     random_word_list = list(set([word for word in words if word not in stop_words]))
     random.shuffle(random_word_list)
     num_replaced = 0
+    res = []
+
     for random_word in random_word_list:
         try:
             synonyms = w2v.most_similar(positive=[random_word], topn=1)[0][0]
@@ -47,27 +56,29 @@ def replace_randomly(words, n, useless_words=None):
         if len(synonyms) >= 1:
             synonym = random.choice(synonyms)
             new_words = [synonym if word == random_word else word for word in new_words]
+            res.append(new_words)
             num_replaced += 1
         if num_replaced >= n:
             break
 
     # sentence = ' '.join(new_words)
     # new_words = sentence.split(' ')
-    return [new_words]
+    return res
 
 
 def insert_stop_words(words, n, useless_words=None):
     if n not in [-1, 0, 1]:
         return []
 
-    insert_idx = random.randint(1, len(words)-1) if n == -1 else n*len(words)
+    insert_idx = random.randint(1, len(words)-1) if n == -1 else n*(len(words)-1)
     useless_words = ask_words if not useless_words else useless_words
 
     new_words = []
     for word in useless_words:
         new_sen = words.copy()
         if new_sen[insert_idx] not in word and word not in new_sen[insert_idx]:
-            new_sen.insert(insert_idx, word)
+            ins_idx = insert_idx + 1 if len(new_sen) - 1 == insert_idx else insert_idx
+            new_sen.insert(ins_idx, word)
         new_words.append(new_sen)
 
     return new_words
