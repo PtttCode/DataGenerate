@@ -5,7 +5,7 @@ from settings.logger import Logger
 
 WORD_DEP = "data/word_depository"
 FIELD_DIR = "data/field"
-WORD2VEC_PATH = "small_cc_zh.vec"
+WORD2VEC_PATH = "data/w2v/small_cc_zh.vec"
 GENERATE_PATH = "data/original_corpus/generate"
 SYNONYMS_PATH = "data/original_corpus/synonyms_generate"
 SYNTAX_PATH = "data/original_corpus/syntax_generate"
