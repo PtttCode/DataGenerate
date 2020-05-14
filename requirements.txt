@@ -4,8 +4,7 @@ sklearn
 ptttloggg
 synonyms
 gensim
-tensorflow==1.12
-keras
+keras==2.2.4
 thulac
 numpy
 pandas
